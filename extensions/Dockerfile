@@ -8,13 +8,14 @@ WORKDIR /os
 ADD . .
 ARG COSA
 RUN variant="" \
-    && if [[ -f 'src/config.json' ]]; then \
-        variant="-"+$(jq --raw-output '."coreos-assembler.config-variant"' 'src/config.json'); \
+    && if [[ -f './config.json' ]]; then \
+        variant=$(jq --raw-output '."coreos-assembler.config-variant"' './config.json'); \
     fi \
+    && echo "$variant" \
     && if [[ -z "$COSA" ]] && [ "$variant" != "scos" ] && [ "$variant" != "c9s" ]; then \
         ci/get-ocp-repo.sh; \
     fi \
-    && rpm-ostree compose extensions --rootfs=/ --output-dir=/usr/share/rpm-ostree/extensions/ {manifest,extensions}${variant}.yaml
+    && rpm-ostree compose extensions --rootfs=/ --output-dir=/usr/share/rpm-ostree/extensions/ {manifest,extensions}-${variant}.yaml
 
 ## Creates the repo metadata for the extensions & builds the go binary.
 ## This uses Fedora as a lowest-common-denominator because it will work on
